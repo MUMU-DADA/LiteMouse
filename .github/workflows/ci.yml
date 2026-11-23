@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: macOS (Unit Tests, Universal Build & DMG Verify)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: ./scripts/test.sh
+
+      - name: Build Universal .app and verify .dmg
+        run: UNIVERSAL=1 ./scripts/package-dmg.sh
